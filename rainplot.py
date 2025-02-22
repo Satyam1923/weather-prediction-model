@@ -7,6 +7,7 @@ df['time'] = pd.to_datetime(df['time'])
 
 df_nonzero = df[df['rain (mm)'] > 0]
 
+print(len(df_nonzero))
 
 plt.figure(figsize=(12, 5))
 plt.plot(df_nonzero['time'], df_nonzero['rain (mm)'], marker='o', linestyle='None', markersize=3)
