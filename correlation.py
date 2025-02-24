@@ -1,18 +1,22 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import Normalizer
+
+df = pd.read_csv("dataset.csv") 
 
 
-df = pd.read_csv("dataset.csv")  
-
-date_columns = ["time"]  
-for col in date_columns:
-    df[col] = pd.to_datetime(df[col], format="%Y-%m-%d", errors="coerce")
-
-df_numeric = df.select_dtypes(include=['number'])
+df_numeric = df.select_dtypes(include=['number']) 
 
 
-corr_matrix = df_numeric.corr()
+normalizer = Normalizer(norm='l2')
+ndf = pd.DataFrame(normalizer.fit_transform(df_numeric), columns=df_numeric.columns)
+
+ndf.drop(columns=['precipitation (mm)', 'snowfall (cm)', 'snow_depth (m)'], inplace=True, errors='ignore')
+
+corr_matrix = ndf.corr()
+
 plt.figure(figsize=(12, 8))
 sns.heatmap(corr_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
+plt.title("Feature Correlation Heatmap")
 plt.show()
