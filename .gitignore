@@ -2,10 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.predictions.csv
 # C extensions
 *.so
-
+predictions.csv
 # Distribution / packaging
 .Python
 build/

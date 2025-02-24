@@ -15,12 +15,10 @@ df['hour'] = df['time'].dt.hour
 df['day'] = df['time'].dt.day
 df['month'] = df['time'].dt.month
 df['year'] = df['time'].dt.year
-df['dayofweek'] = df['time'].dt.dayofweek
-df['is_weekend'] = df['dayofweek'].apply(lambda x: 1 if x >= 5 else 0)
 
 y = df['weather_code (wmo code)'].astype(int)  
 
-X = df.select_dtypes(include=['number']).drop(columns=['weather_code (wmo code)', 'rain (mm)', 'cloud_cover (%)'])
+X = df.select_dtypes(include=['number']).drop(columns=['weather_code (wmo code)', 'rain (mm)' ,'snowfall (cm)','snow_depth (m)'])
 
 scaler = StandardScaler()
 X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=X.columns)
@@ -36,7 +34,7 @@ print("\nSelected Features:", top_features)
 
 X_selected = X_scaled[top_features]
 
-X_train, X_test, y_train, y_test = train_test_split(X_selected, y, test_size=0.3, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_selected, y, test_size=0.2, random_state=42)
 
 rf_model = RandomForestClassifier(
     n_estimators=200, 
@@ -50,6 +48,12 @@ rf_model.fit(X_train, y_train)
 
 y_pred = rf_model.predict(X_test)
 
+X_test_copy = X_test.copy()
+X_test_copy['Predicted Weather Code'] = y_pred
+X_test_copy.to_csv("predictions.csv", index=False)
+
+print("Predictions saved to predictions.csv!")
+
 accuracy = accuracy_score(y_test, y_pred)
 print("\nAccuracy Score:", accuracy)
 
@@ -62,3 +66,4 @@ plt.xlabel("Predicted Label")
 plt.ylabel("True Label")
 plt.title("Confusion Matrix")
 plt.show()
+
