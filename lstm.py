@@ -6,6 +6,8 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM, Dense
 from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 
 file_path = "dataset.csv"
 df = pd.read_csv(file_path)
@@ -49,8 +51,19 @@ model = Sequential([
     LSTM(50),
     Dense(len(features))
 ])
-model.compile(optimizer="adam", loss=tf.keras.losses.MeanSquaredError(), metrics=[tf.keras.metrics.MeanAbsoluteError()])
+model.compile(optimizer=Adam(learning_rate=0.0005), 
+              loss=tf.keras.losses.Huber(delta=1.5), 
+              metrics=[tf.keras.metrics.RootMeanSquaredError(), 
+                       tf.keras.metrics.MeanAbsoluteError()])
+
 model.summary()
+
+early_stopping_callback = EarlyStopping(
+    monitor="val_loss",
+    patience=10,  
+    restore_best_weights=True,
+    verbose=1
+)
 
 checkpoint_callback = ModelCheckpoint(
     "best_weather_prediction_model.h5",
@@ -62,8 +75,8 @@ checkpoint_callback = ModelCheckpoint(
 
 history = model.fit(
     X_train, y_train,
-    epochs=20,
-    batch_size=32,
+    epochs=100,
+    batch_size=128,
     validation_data=(X_test, y_test),
     verbose=1,
     callbacks=[checkpoint_callback]
