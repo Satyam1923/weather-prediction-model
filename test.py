@@ -37,7 +37,7 @@ df.fillna(df.mean(), inplace=True)
 scaler = MinMaxScaler()
 df[features] = scaler.fit_transform(df[features])
 
-# Define the start time for the 7-day prediction
+# Define the start time for the 2-day prediction
 start_time = pd.to_datetime("2007-9-22 16:00:00")
 
 # Initialize lists to store predictions and actual values
@@ -98,8 +98,10 @@ plt.title('Temperature (°C) over 7 Days')
 plt.xlabel('Date')
 plt.ylabel('Temperature')
 plt.xticks(rotation=45, ha='right')
+plt.ylim(min(actual_temperatures + predicted_temperatures) - 2, max(actual_temperatures + predicted_temperatures) + 2)  # Dynamic y-axis range
 plt.legend()
 
+# Humidity plot
 # Humidity plot
 plt.subplot(2, 2, 2)
 plt.plot(dates, predicted_humidities, label='Predicted Humidity', marker='o', color='orange')
@@ -108,21 +110,29 @@ plt.title('Humidity (%) over 7 Days')
 plt.xlabel('Date')
 plt.ylabel('Humidity')
 plt.xticks(rotation=45, ha='right')
+plt.ylim(min(actual_humidities + predicted_humidities) - 5, max(actual_humidities + predicted_humidities) + 5)  # Dynamic y-axis range
 plt.legend()
 
 # Rain plot
 predicted_rain_markers = [1 if pred == "Yes" else 0 for pred in predicted_rain]
 actual_rain_markers = [1 if act == "Yes" else 0 for act in actual_rain]
 
+# Bar chart for rain prediction
+x = np.arange(len(dates))  # numerical x positions
+
 plt.subplot(2, 2, 3)
-plt.plot(dates, predicted_rain_markers, label='Predicted Rain', marker='o', color='green')
-plt.plot(dates, actual_rain_markers, label='Actual Rain', marker='o', color='red')
+bar_width = 0.35
+
+plt.bar(x - bar_width/2, predicted_rain_markers, width=bar_width, label='Predicted Rain', color='green')
+plt.bar(x + bar_width/2, actual_rain_markers, width=bar_width, label='Actual Rain', color='red')
+
 plt.title('Rain Predictions over 7 Days')
 plt.xlabel('Date')
 plt.ylabel('Rain')
+plt.xticks(x, [date.strftime('%Y-%m-%d') for date in dates], rotation=45, ha='right')
 plt.yticks([0, 1], ['No', 'Yes'])
-plt.xticks(rotation=45, ha='right')
 plt.legend()
+
 
 # Show the plot
 plt.tight_layout()
